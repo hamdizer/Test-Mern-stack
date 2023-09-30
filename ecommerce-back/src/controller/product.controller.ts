@@ -58,7 +58,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     let newProduct:any=await Product.findById({_id:productId})
     const countryPricesArray=req.body.countryPrice
     for(var i=0;i<countryPricesArray?.length;i++){
-    const countryPricing=await new CountryPrice({currency:countryPricesArray[i]?.currency,price:countryPricesArray[i]?.price})
+    const countryPricing= new CountryPrice({currency:countryPricesArray[i]?.currency,price:countryPricesArray[i]?.price})
     await countryPricing.save();
     newProduct?.countryPrice?.push(countryPricing.id)
     await newProduct?.save();
