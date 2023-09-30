@@ -9,7 +9,7 @@ export const addProduct = async (product: AddProductData) => {
     Authorization:`Bearer ${token}`
   }});
 };
-export const updateProduct = async (idProduct:number,product: Product) => {
+export const updateProduct = async (idProduct:number,product: AddProductData) => {
     return await axios.put(`http://localhost:8000/api/products/${idProduct}`, product,{headers:{
       Authorization:`Bearer ${token}`
     }});

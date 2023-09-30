@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const ProductListAdmin = () => {
   const [products, setProducts] = useState<any>();
+  const currencies: string[] = ["TND", "EUR", "USD", "TRY", "GBP"];
   const navigate = useNavigate();
   useEffect(() => {
     getAllProducts()
@@ -48,6 +49,8 @@ const ProductListAdmin = () => {
             <th className="px-4 py-2">Sku</th>
             <th className="px-4 py-2">Title</th>
             <th className="px-4 py-2">Description</th>
+            {currencies.map((currency:string,index:number)=><th key={index} className="px-4 py-2">{`price ${currency}`}</th>
+)}
             <th className="px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -57,6 +60,8 @@ const ProductListAdmin = () => {
               <td className="border px-4 py-2">{row.sku}</td>
               <td className="border px-4 py-2">{row.title}</td>
               <td className="border px-4 py-2">{row.description}</td>
+              {currencies.map((currency:string,index:number)=><td key={index} className="border px-4 py-2">{row.countryPrice[index].price}</td>)}
+
               <td className="border px-4 py-2">
                 <button
                   onClick={() => navigate("/admin/products/edit", {state:row._id})}

@@ -16,8 +16,8 @@ export const getAllDocuments = async (model: any,populate?:string) => {
    const documents= populate? model.find().populate(populate):model.find();
    return documents
 };
-export const updateDocument = async (model: any,filter:Object,id:string) => {
-    await model.findByIdAndUpdate(id,filter);
+export const updateDocument = async (model: any,filter:Object,id:string,populate?:string) => {
+  populate? await model.findByIdAndUpdate(id,filter).populate(populate):model.findByIdAndUpdate(id,filter)
  };
  export const getDocument= async (model: any,filter:Object,populate?:string) => {
   return populate? model.find(filter).populate(populate):model.find(filter);

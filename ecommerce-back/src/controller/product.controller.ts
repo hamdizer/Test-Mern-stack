@@ -45,12 +45,28 @@ export const deleteProduct = async (req: Request, res: Response) => {
   res.status(200).send({ message: `Product Number ${productId} is Deleted` });
 };
 export const updateProduct = async (req: Request, res: Response) => {
-    const {error}=ProductValidation.validate(req.body)
+  const productData={sku:req.body.product.sku,title:req.body.product.title,description:req.body.product.description}
+    const {error}=ProductValidation.validate(productData)
     if (error) {
         return res.status(400).send(error.details)
     }
   const productId = req.params.id;
-  await updateDocument(Product, req.body, productId);
+  await CountryPrice.deleteMany({product:req.params.id})
+
+  await updateDocument(Product,productData 
+    , productId,"countryPrice");
+    let newProduct:any=await Product.findById({_id:productId})
+    const countryPricesArray=req.body.countryPrice
+    for(var i=0;i<countryPricesArray?.length;i++){
+    const countryPricing=await new CountryPrice({currency:countryPricesArray[i]?.currency,price:countryPricesArray[i]?.price})
+    await countryPricing.save();
+    newProduct?.countryPrice?.push(countryPricing.id)
+    await newProduct?.save();
+    countryPricing.product=newProduct;
+    await countryPricing.save()
+
+    }
+    
   res.status(200).send({ message: `Product Successfully updated ` });
 };
 export const getProduct=async (req:Request,res:Response)=>{

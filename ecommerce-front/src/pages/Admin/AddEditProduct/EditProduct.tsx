@@ -1,57 +1,82 @@
 import React, { useEffect, useState } from "react";
 import { CountryPricing, Product } from "../../../types";
-import { addProduct, getProduct, updateProduct } from "../../../services/product";
+import {
+  addProduct,
+  getProduct,
+  updateProduct,
+} from "../../../services/product";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-
 const EditProduct = () => {
-    const currencies: string[] = ["TND", "EUR", "USD", "TRY", "GBP"];
-const location=useLocation()
-const navigate=useNavigate()
-  const [product, setProduct] = useState<any>()
- useEffect(()=>{
-    getProduct(`${location.state}`).then((response)=>{
-        setProduct(response.data.product)
-    })
-    .catch(err=>{
-        console.log(err)
-    })
- },[]
- )
+  const currencies: string[] = ["TND", "EUR", "USD", "TRY", "GBP"];
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [product, setProduct] = useState<Product>({
+    title: "",
+    description: "",
+    sku: "",
+    countryPrice: [],
+  });
+
+  useEffect(() => {
+    getProduct(`${location.state}`)
+      .then((response) => {
+        delete response.data.product._id;
+        delete response.data.product.__v;
+    setProduct(response.data.product)
+      
+       
+
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+  const handleChangePrice=(event:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,index:number)=>{
+    if(product.countryPrice){
+      product.countryPrice[index].price=parseInt(event.target.value)
+      const NewCountryPrice=product.countryPrice
+    setProduct({...product,countryPrice:NewCountryPrice})
+  }
+}
+  useEffect(()=>{
+    console.log(product)
+  },[product])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setProduct((prevProduct:any) => ({
+    setProduct((prevProduct: any) => ({
       ...prevProduct,
       [name]: value,
     }));
   };
 
-  const handleSubmit =  (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-   
-    console.log(product)
+
+    console.log(product);
+    const productData={
+      product:{
+        sku:product?.sku,
+        title:product?.title,
+        description:product?.description,
+      },
+      countryPrice:product?.countryPrice
+
+    }
     // Handle form submission, e.g., send data to an API
-    let id=product._id
-    delete product?._id
-    delete product.__v
-    updateProduct(id,product)
+    updateProduct(location.state, productData)
       .then((response) => {
         console.log(response);
-        navigate(-1)
+        navigate(-1);
       })
       .catch((err) => {
         console.log(err);
       });
   };
- /* const handleChangePrice=(event:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
-     var i=0;
-     product?.countryPricing&& product?.countryPricing.push({[`price ${i++}`]:event.target.value})
-     setProduct(product)
 
-  }*/
   return (
     <div className="flex justify-center items-center min-h-screen ">
       <div className="bg-white p-8 rounded shadow-md w-96">
@@ -91,7 +116,10 @@ const navigate=useNavigate()
             ></input>
           </div>
           <div className="mb-4">
-            <label htmlFor="description" className="block font-medium mb-2 text-center">
+            <label
+              htmlFor="description"
+              className="block font-medium mb-2 text-center"
+            >
               Description
             </label>
             <textarea
@@ -110,22 +138,22 @@ const navigate=useNavigate()
             >
               Prices
             </label>
-            {/*currencies?.map((currency,index) => (
+            {currencies?.map((currency, index) => (
               <div>
                 <label className="block text-sm font-medium text-gray-700 text-center">
                   {currency}
                 </label>
                 <input
                   type="text"
-                  id={`price ${index }`}
-                  value={product.countryPricing[`price${index}`]}
-                  onChange={handleChangePrice}
+                  defaultValue={product.countryPrice&&product?.countryPrice[index]?.price}
+                  value={product.countryPrice&&product?.countryPrice[index]?.price}
+                  onChange={(e)=>handleChangePrice(e,index)}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
-            ))*/}
-             <div>
+            ))}
+            {/*<div>
                 <label className="block text-sm font-medium text-gray-700 text-center">
                   TND
                 </label>
@@ -133,7 +161,7 @@ const navigate=useNavigate()
                   type="text"
                   id={"pricetn"}
                   name="pricetn"
-                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="TND")[0].price}
+                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="TND")[0]?.price}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                   required
@@ -147,7 +175,7 @@ const navigate=useNavigate()
                   type="text"
                   id={"priceeur"}
                   name="priceeur"
-                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="EUR")[0].price}
+                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="EUR")[0]?.price}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                   required
@@ -161,7 +189,7 @@ const navigate=useNavigate()
                   type="text"
                   id={"priceusd"}
                   name="priceusd"
-                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="USD")[0].price}
+                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="USD")[0]?.price}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                   required
@@ -175,7 +203,7 @@ const navigate=useNavigate()
                   type="text"
                   id={"pricetry"}
                   name="pricetry"
-                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="TRY")[0].price}
+                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="TRY")[0]?.price}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                   required
@@ -189,11 +217,11 @@ const navigate=useNavigate()
                   type="text"
                   id={"pricegbp"}
                   name="pricegbp"
-                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="GBP")[0].price}
+                  value={product?.countryPrice?.filter((countryPrice:CountryPricing)=>countryPrice?.currency==="GBP")[0]?.price}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                   required
                 />
-              </div>
+          </div>*/}
           </div>
           <div className="text-center">
             <button
